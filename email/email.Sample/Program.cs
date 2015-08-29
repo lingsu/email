@@ -20,9 +20,8 @@ namespace email.Sample
 
             var tos = new List<string>()
             {
-                "xiaxw@guoji.biz",
-                "xuedz@guoji.biz",
-                "shgzs@guoji.biz"
+                "q25a25q@live.com",
+                "570678569@qq.com"
             };
             var message = tn.CreateTextEmail("用户{{ UserName }}兑换了 aa，请及时处理!", new { UserName = "自定义数据", From = "570678569@qq.com", To = "q25a25q@live.com", Subject = "邮件主题" });
             message.Cc = tos;

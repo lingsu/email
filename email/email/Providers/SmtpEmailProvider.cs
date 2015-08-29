@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
 using System.Text;
+using email.Configuration;
 
 namespace email.Providers
 {
@@ -13,14 +14,15 @@ namespace email.Providers
     public class SmtpEmailProvider : IEmailProvider
     {
         private readonly Func<SmtpClient> _client;
+        private readonly ISmtpConfig _smtpConfig;
 
         public SmtpEmailProvider() : this("localhost")
         {
-            
+
         }
         public SmtpEmailProvider(string host) : this(host, 587)
         {
-            
+
         }
         public SmtpEmailProvider(string host, int port) : this(host, port, CredentialCache.DefaultNetworkCredentials)
         {
@@ -28,13 +30,21 @@ namespace email.Providers
         }
         public SmtpEmailProvider(string host, int port, ICredentialsByHost credentials)
         {
-            _client = () => new SmtpClient { Host = host, Port = port, Credentials = credentials };
+            _smtpConfig = new SmtpConfig(host, port, credentials);
+            _client = () => new SmtpClient { Host = _smtpConfig.Host, Port = _smtpConfig.Port, Credentials = _smtpConfig.Credentials };
         }
+
+        public SmtpEmailProvider(ISmtpConfig smtpConfig)
+        {
+            _smtpConfig = smtpConfig;
+            _client = () => new SmtpClient { Host = _smtpConfig.Host, Port = _smtpConfig.Port, Credentials = _smtpConfig.Credentials };
+        }
+
         public SmtpEmailProvider(Func<SmtpClient> client)
         {
             _client = client;
         }
-        
+
         public bool Send(EmailMessage message)
         {
             AlternateView textView;
@@ -51,11 +61,11 @@ namespace email.Providers
             }
             finally
             {
-                if(htmlView != null)
+                if (htmlView != null)
                 {
                     htmlView.Dispose();
                 }
-                if(textView != null)
+                if (textView != null)
                 {
                     textView.Dispose();
                 }
@@ -65,7 +75,7 @@ namespace email.Providers
         public bool[] Send(IEnumerable<EmailMessage> messages)
         {
             var result = new List<bool>();
-            foreach(var message in messages)
+            foreach (var message in messages)
             {
                 Send(message);
             }
@@ -75,10 +85,10 @@ namespace email.Providers
         public static MailMessage BuildMessageAndViews(EmailMessage message, out AlternateView textView, out AlternateView htmlView)
         {
             var smtpMessage = new MailMessage { BodyEncoding = Encoding.UTF8, From = new MailAddress(message.From) };
-            if(message.To.Count > 0) smtpMessage.To.Add(string.Join(",", message.To));
-            if(message.ReplyTo.Count > 0) smtpMessage.ReplyToList.Add(string.Join(",", message.ReplyTo));
-            if(message.Cc.Count > 0) smtpMessage.CC.Add(string.Join(",", message.Cc));
-            if(message.Bcc.Count > 0) smtpMessage.Bcc.Add(string.Join(",", message.Bcc));
+            if (message.To.Count > 0) smtpMessage.To.Add(string.Join(",", message.To));
+            if (message.ReplyTo.Count > 0) smtpMessage.ReplyToList.Add(string.Join(",", message.ReplyTo));
+            if (message.Cc.Count > 0) smtpMessage.CC.Add(string.Join(",", message.Cc));
+            if (message.Bcc.Count > 0) smtpMessage.Bcc.Add(string.Join(",", message.Bcc));
             smtpMessage.Subject = message.Subject;
             htmlView = null;
             textView = null;
