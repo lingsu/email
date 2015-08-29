@@ -4,9 +4,9 @@ namespace email.Configuration
 {
     public class SmtpConfig: ISmtpConfig
     {
-        public string Host { get; }
-        public int Port { get; }
-        public ICredentialsByHost Credentials { get; }
+        public string Host { get; set; }
+        public int Port { get; set; }
+        public ICredentialsByHost Credentials { get; set; }
 
         public SmtpConfig() : this("localhost")
         {

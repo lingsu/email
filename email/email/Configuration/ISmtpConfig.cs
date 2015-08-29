@@ -4,8 +4,8 @@ namespace email.Configuration
 {
     public interface ISmtpConfig
     {
-        string Host { get; }
-        int Port { get; }
-        ICredentialsByHost Credentials { get; }
+        string Host { get; set; }
+        int Port { get; set; }
+        ICredentialsByHost Credentials { get; set; }
     }
 }
